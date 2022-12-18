@@ -1,5 +1,6 @@
 import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
 import autoAnimate from '@formkit/auto-animate';
+import { Project } from '@prisma/client';
 
 import { trpc } from 'utils/trpc';
 
@@ -9,13 +10,17 @@ import CreateProjectCard from './components/CreateProjectCard';
 import ProjectCard from './components/ProjectCard';
 import CreateProjectModal from './components/CreateProjectModal';
 import DeleteProjectModal from './components/DeleteProjectModal';
+import UpdateProjectModal from './components/UpdateProjectModal';
 
 const HomeScreen: FunctionComponent = () => {
     const { data, isLoading, error } = trpc.project.getAll.useQuery();
 
+    const [selectedProjectId, setselectedProjectId] = useState('');
+    const [selectedProject, setSelectedProject] = useState<Project>({ id: '', name: '', desc: '' });
+
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [selectedProjectId, setselectedProjectId] = useState('');
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
     const parent = useRef(null);
 
@@ -30,11 +35,16 @@ const HomeScreen: FunctionComponent = () => {
         setIsDeleteModalOpen(true);
     };
 
+    const updateProjectCardClickHandler = (proj: Project) => {
+        setSelectedProject(proj);
+        setIsUpdateModalOpen(true);
+    };
+
     const renderProjectData = () => {
         if (isLoading) {
             return (
                 <div className='flex items-center justify-center w-full h-full'>
-                    <div className='w-[300px] h-[300px]'>
+                    <div className='w-[150px] h-[150px]'>
                         <Spinner />
                     </div>
                 </div>
@@ -45,7 +55,7 @@ const HomeScreen: FunctionComponent = () => {
             return (
                 <div className='flex items-center justify-center w-full h-full'>
                     <p>
-                        {error.message}
+                        {error.shape?.frontEndMessage}
                     </p>
                 </div>
             );
@@ -63,6 +73,7 @@ const HomeScreen: FunctionComponent = () => {
                             name={name}
                             desc={desc}
                             deleteClickHandler={deleteProjectCardClickHandler}
+                            updateClickHandler={updateProjectCardClickHandler}
                         />
                     );
                 })}
@@ -87,6 +98,11 @@ const HomeScreen: FunctionComponent = () => {
             <CreateProjectModal
                 isOpen={isCreateModalOpen}
                 closeModalHandler={() => setIsCreateModalOpen(false)}
+            />
+            <UpdateProjectModal
+                isOpen={isUpdateModalOpen}
+                selectedProject={selectedProject}
+                closeModalHandler={() => setIsUpdateModalOpen(false)}
             />
             <DeleteProjectModal
                 isOpen={isDeleteModalOpen}

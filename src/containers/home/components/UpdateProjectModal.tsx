@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState, useRef } from 'react';
-import { nanoid } from 'nanoid';
+import { Project } from '@prisma/client';
 
 import { trpc } from 'utils/trpc';
 
@@ -9,33 +9,36 @@ import useDetectClickOutside from 'hooks/useDetectClickOutside';
 
 import Spinner from 'components/Spinner';
 
-interface CreateProjectModalProps {
+interface UpdateProjectModalProps {
     isOpen: boolean;
+    selectedProject: Project
     closeModalHandler: (state: boolean) => void;
 }
 
-const CreateProjectModal: FunctionComponent<CreateProjectModalProps> = (props: CreateProjectModalProps) => {
-    const { isOpen, closeModalHandler } = props;
+const UpdateProjectModal: FunctionComponent<UpdateProjectModalProps> = (props: UpdateProjectModalProps) => {
+    const { isOpen, selectedProject, closeModalHandler } = props;
+
+    const { id, name: selectedName, desc: selectedDesc } = selectedProject;
 
     const utils = trpc.useContext();
 
-    const { mutate, isLoading, error } = trpc.project.createProject.useMutation({
+    const { mutate, isLoading, error } = trpc.project.updateProject.useMutation({
         onSuccess: () => {
             closeModalHandler(false);
             utils.project.getAll.invalidate();
         },
     });
 
-    const [name, setName] = useState('');
-    const [desc, setDesc] = useState('');
+    const [name, setName] = useState(selectedName);
+    const [desc, setDesc] = useState(selectedDesc);
 
     const ref = useRef<HTMLDivElement>(null);
 
     useDetectClickOutside(ref, closeModalHandler);
 
-    const createClickHandler = () => {
+    const updateClickHandler = () => {
         mutate({
-            id: nanoid(),
+            id,
             name,
             desc,
         });
@@ -47,7 +50,11 @@ const CreateProjectModal: FunctionComponent<CreateProjectModalProps> = (props: C
         <div className='fixed top-0 left-0 flex items-center justify-center w-screen h-screen bg-black/[40%]'>
             <div ref={ref} className='p-4 rounded-md w-[40%] h-fit bg-primary-light flex flex-col gap-4 text-secondary-grey'>
                 <div className='flex justify-between'>
-                    <p>Create a new project</p>
+                    <p>
+                        Update
+                        {' '}
+                        <span className='text-accent-yellow'>{selectedName}</span>
+                    </p>
 
                     <button
                         onClick={() => closeModalHandler(false)}
@@ -83,7 +90,7 @@ const CreateProjectModal: FunctionComponent<CreateProjectModalProps> = (props: C
 
                 <div className='flex justify-end'>
                     <button
-                        onClick={createClickHandler}
+                        onClick={updateClickHandler}
                         className='p-2 px-4 text-white transition-colors duration-150 rounded-md w-fit bg-button-grey hover:bg-button-grey-hover'
                     >
                         {isLoading ? (
@@ -91,7 +98,7 @@ const CreateProjectModal: FunctionComponent<CreateProjectModalProps> = (props: C
                                 <Spinner />
                             </div>
                         ) : (
-                            <p>Create</p>
+                            <p>Update</p>
                         )}
                     </button>
                 </div>
@@ -100,4 +107,4 @@ const CreateProjectModal: FunctionComponent<CreateProjectModalProps> = (props: C
     );
 };
 
-export default CreateProjectModal;
+export default UpdateProjectModal;

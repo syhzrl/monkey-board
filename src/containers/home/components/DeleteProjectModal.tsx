@@ -1,6 +1,8 @@
-import React, { FunctionComponent, useEffect, useRef } from 'react';
+import React, { FunctionComponent, useRef } from 'react';
 
 import { trpc } from 'utils/trpc';
+
+import useDetectClickOutside from 'hooks/useDetectClickOutside';
 
 import { Close } from 'assets/icons';
 
@@ -26,28 +28,7 @@ const DeleteProjectModal: FunctionComponent<DeleteProjectModalProps> = (props: D
 
     const ref = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const handleClick = (event: Event) => {
-            if (ref.current && !ref.current.contains(event.target as Node)) {
-                closeModalHandler(false);
-            }
-        };
-
-        const hideDropdownKeyboardHandler = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
-                event.preventDefault();
-                closeModalHandler(false);
-            }
-        };
-
-        document.addEventListener('click', handleClick, true);
-        document.addEventListener('keydown', hideDropdownKeyboardHandler, true);
-
-        return () => {
-            document.removeEventListener('click', handleClick, true);
-            document.addEventListener('keydown', hideDropdownKeyboardHandler, true);
-        };
-    }, [ref, closeModalHandler]);
+    useDetectClickOutside(ref, closeModalHandler);
 
     const confirmClickHandler = () => {
         mutate({
@@ -87,6 +68,12 @@ const DeleteProjectModal: FunctionComponent<DeleteProjectModalProps> = (props: D
                     >
                         <p>Cancel</p>
                     </button>
+
+                    {isLoading && (
+                        <div className='w-[40px] h-[40px]'>
+                            <Spinner />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
