@@ -1,63 +1,98 @@
-import React, { FunctionComponent, useState } from 'react';
-import { useAutoAnimate } from '@formkit/auto-animate/react';
+import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
+import autoAnimate from '@formkit/auto-animate';
+
+import { trpc } from 'utils/trpc';
+
+import Spinner from 'components/Spinner';
 
 import CreateProjectCard from './components/CreateProjectCard';
-
 import ProjectCard from './components/ProjectCard';
-
-interface Project {
-    name: string;
-    desc: string;
-}
+import CreateProjectModal from './components/CreateProjectModal';
+import DeleteProjectModal from './components/DeleteProjectModal';
 
 const HomeScreen: FunctionComponent = () => {
-    const [projectData, setProjectData] = useState<Project[]>([
-        {
-            name: 'Project 1',
-            desc: 'lorem ipsum yada yada yada',
-        }, {
-            name: 'Project 2',
-            desc: 'lorem ipsum yada yada yada',
-        },
-    ]);
+    const { data, isLoading, error } = trpc.project.getAll.useQuery();
 
-    const [parent] = useAutoAnimate<HTMLDivElement>();
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedProjectId, setselectedProjectId] = useState('');
 
-    const addProjectHandler = () => {
-        setProjectData(prev => {
-            return [
-                ...prev,
-                {
-                    name: 'Project 3',
-                    desc: 'lorem ipsum yada yada yada',
-                },
-            ];
-        });
+    const parent = useRef(null);
+
+    useEffect(() => {
+        if (parent.current) {
+            autoAnimate(parent.current);
+        }
+    }, [parent]);
+
+    const deleteProjectCardClickHandler = (projId: string) => {
+        setselectedProjectId(projId);
+        setIsDeleteModalOpen(true);
+    };
+
+    const renderProjectData = () => {
+        if (isLoading) {
+            return (
+                <div className='flex items-center justify-center w-full h-full'>
+                    <div className='w-[300px] h-[300px]'>
+                        <Spinner />
+                    </div>
+                </div>
+            );
+        }
+
+        if (error) {
+            return (
+                <div className='flex items-center justify-center w-full h-full'>
+                    <p>
+                        {error.message}
+                    </p>
+                </div>
+            );
+        }
+
+        return (
+            <div ref={parent} className='grid content-center justify-center grid-cols-3 gap-10 p-4 w-fit place-items-center'>
+                {data.map((item) => {
+                    const { id, name, desc } = item;
+
+                    return (
+                        <ProjectCard
+                            key={id}
+                            id={id}
+                            name={name}
+                            desc={desc}
+                            deleteClickHandler={deleteProjectCardClickHandler}
+                        />
+                    );
+                })}
+
+                <CreateProjectCard
+                    onClick={() => setIsCreateModalOpen(true)}
+                />
+            </div>
+        );
     };
 
     return (
-        <div className='flex flex-col items-center flex-1'>
+        <div className='relative flex flex-col items-center flex-1'>
             <p className='mt-4 text-3xl'>
                 Monkey Board
             </p>
 
             <div className='flex flex-wrap items-center justify-center flex-1 w-full p-4'>
-                <div ref={parent} className='grid content-center justify-center grid-cols-3 gap-10 p-4 w-fit place-items-center'>
-                    {projectData.map((item) => {
-                        const { name, desc } = item;
-
-                        return (
-                            <ProjectCard
-                                key={name}
-                                name={name}
-                                desc={desc}
-                            />
-                        );
-                    })}
-
-                    <CreateProjectCard onClick={addProjectHandler} />
-                </div>
+                {renderProjectData()}
             </div>
+
+            <CreateProjectModal
+                isOpen={isCreateModalOpen}
+                closeModalHandler={() => setIsCreateModalOpen(false)}
+            />
+            <DeleteProjectModal
+                isOpen={isDeleteModalOpen}
+                projectId={selectedProjectId}
+                closeModalHandler={() => setIsDeleteModalOpen(false)}
+            />
         </div>
     );
 };

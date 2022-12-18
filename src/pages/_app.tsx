@@ -1,8 +1,8 @@
 import React from 'react';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
-
 import TabsProvider from 'contexts/Tabs';
+import { trpc } from '../utils/trpc';
 
 import 'globals.css';
 
@@ -21,4 +21,4 @@ const App = ({ Component, pageProps }: AppProps): JSX.Element => {
     );
 };
 
-export default App;
+export default trpc.withTRPC(App);

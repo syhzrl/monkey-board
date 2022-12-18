@@ -11,12 +11,20 @@
   "dependencies": {
     "@formkit/auto-animate": "^1.0.0-beta.5",
     "@prisma/client": "^4.7.1",
+    "@tanstack/react-query": "^4.16.0",
+    "@trpc/client": "^10.0.0",
+    "@trpc/next": "^10.0.0",
+    "@trpc/react-query": "^10.0.0",
+    "@trpc/server": "^10.0.0",
     "autoprefixer": "^10.4.13",
+    "nanoid": "^4.0.0",
     "next": "12.3.1",
     "postcss": "^8.4.19",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-syntax-highlighter": "^15.5.0"
+    "react-syntax-highlighter": "^15.5.0",
+    "superjson": "1.9.1",
+    "zod": "^3.18.0"
   },
   "devDependencies": {
     "@svgr/webpack": "^6.5.1",

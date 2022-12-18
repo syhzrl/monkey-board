@@ -18,6 +18,8 @@ import Express from './express.svg';
 import Prisma from './prisma.svg';
 import Tick from './tick.svg';
 import Board from './board.svg';
+import Delete from './delete.svg';
+import Edit from './edit.svg';
 
 export {
     LinkedIn,
@@ -40,4 +42,6 @@ export {
     Prisma,
     Tick,
     Board,
+    Delete,
+    Edit,
 };
