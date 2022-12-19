@@ -10,6 +10,8 @@ import TopBar from 'components/TopBar';
 import LoadingModal from 'components/LoadingModal';
 
 import { ItemCRUDContext } from 'contexts/ItemCRUD';
+import { SideMenuContext } from 'contexts/SideMenu';
+
 import Board from './Board';
 import Dashboard from './Dashboard';
 import File from './File';
@@ -28,27 +30,32 @@ const ProjectDetailsScreen: FunctionComponent = () => {
     const { data, isLoading, error } = trpc.project.getProjectDetails.useQuery({ id: projectId });
 
     const { isCreateModalOpen, setIsCreateModalOpen, setCurrentProjectDetailsId } = useContext(ItemCRUDContext);
+    const { setBoardsData, setDrawingsData, setFilesData } = useContext(SideMenuContext);
 
     useEffect(() => {
         if (data) {
-            setCurrentProjectDetailsId(data.id);
+            const { id, boards, files, drawings } = data;
+            setCurrentProjectDetailsId(id);
+            setBoardsData(boards);
+            setDrawingsData(drawings);
+            setFilesData(files);
         }
-    }, [data, setCurrentProjectDetailsId]);
+    }, [data, setCurrentProjectDetailsId, setBoardsData, setDrawingsData, setFilesData]);
 
-    const renderPageContent = () => {
-        switch (selectedTab.type) {
-            case ModuleType.board: return <Board />;
-            case ModuleType.file: return <File />;
-            case ModuleType.drawing: return <Draw />;
-            default: return (
-                <Dashboard
-                    projectName={data?.name || 'Project Name'}
-                    projectDesc={data?.desc || 'Project Description'}
-                    boardsData={data?.boards || []}
-                />
-            );
-        }
-    };
+    // const renderPageContent = () => {
+    //     switch (selectedTab.type) {
+    //         case ModuleType.board: return <Board />;
+    //         case ModuleType.file: return <File />;
+    //         case ModuleType.drawing: return <Draw />;
+    //         default: return (
+    //             <Dashboard
+    //                 projectName={data?.name || 'Project Name'}
+    //                 projectDesc={data?.desc || 'Project Description'}
+    //                 boardsData={data?.boards || []}
+    //             />
+    //         );
+    //     }
+    // };
 
     return (
         <div className='flex w-full'>

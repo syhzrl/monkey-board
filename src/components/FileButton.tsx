@@ -1,7 +1,9 @@
 import React, { FunctionComponent, useContext } from 'react';
-import { File, Chevron } from 'assets/icons';
 
 import { TabsContext } from 'contexts/Tabs';
+
+import { File, Chevron, Board, Pencil } from 'assets/icons';
+
 import { ModuleType, Tab } from '../entities/tabs';
 
 interface FileButtonProps {
@@ -22,6 +24,15 @@ const FileButton: FunctionComponent<FileButtonProps> = (props: FileButtonProps) 
         });
     };
 
+    const renderIcon = () => {
+        switch (type) {
+            case ModuleType.board: return <Board className='text-xl' />;
+            case ModuleType.file: return <File className='text-xl' />;
+            case ModuleType.drawing: return <Pencil className='text-xl' />;
+            default: return <Board className='text-xl' />;
+        }
+    };
+
     return (
         <button
             onClick={onClickHandler}
@@ -31,9 +42,7 @@ const FileButton: FunctionComponent<FileButtonProps> = (props: FileButtonProps) 
                 className='text-transparent'
             />
 
-            <File
-                className='text-xl'
-            />
+            {renderIcon()}
 
             <p className={`${selectedTab.label === label ? 'text-accent-yellow' : 'text-white'}`}>
                 {label}

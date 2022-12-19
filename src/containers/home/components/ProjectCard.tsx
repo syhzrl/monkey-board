@@ -46,6 +46,7 @@ const ProjectCard: FunctionComponent<ProjectCardProps> = (props: ProjectCardProp
                     <div className='flex items-center justify-between w-full'>
                         <button
                             type='button'
+                            // TODO refactor this
                             onClick={() => router.push({
                                 pathname: `project/${id}`,
                                 query: { projectName: name, projectDesc: desc },

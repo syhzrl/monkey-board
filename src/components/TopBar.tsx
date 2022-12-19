@@ -1,10 +1,17 @@
 import React, { FunctionComponent, useContext, MouseEvent } from 'react';
+import { useRouter } from 'next/router';
 
 import { TabsContext } from 'contexts/Tabs';
 import { ModuleType, Tab } from '../entities/tabs';
 
 const TopBar: FunctionComponent = () => {
     const { openedTabs, setOpenedTabs, setSelectedTab, selectedTab } = useContext(TabsContext);
+
+    const router = useRouter();
+
+    const { projectId = '' } = router.query as { projectId: string };
+
+    console.log(router.query);
 
     const onMiddleClickHandler = (event: MouseEvent, clickedTab: Tab) => {
         const { button } = event;
@@ -25,6 +32,7 @@ const TopBar: FunctionComponent = () => {
                     label: '',
                     type: ModuleType.none,
                 });
+                router.replace(`/project/${projectId}`);
             }
         }
     };

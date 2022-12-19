@@ -5,6 +5,7 @@ import Head from 'next/head';
 
 import TabsProvider from 'contexts/Tabs';
 import ItemCRUDProvider from 'contexts/ItemCRUD';
+import SideMenuProvider from 'contexts/SideMenu';
 
 import TopBar from 'components/TopBar';
 import SideMenu from 'components/SideMenu';
@@ -24,13 +25,15 @@ const App = ({ Component, pageProps }: AppProps): JSX.Element => {
             </Head>
             <TabsProvider>
                 <ItemCRUDProvider>
-                    <div className='flex flex-1'>
-                        {router.pathname !== '/' && <SideMenu />}
-                        <div className='flex flex-col flex-1'>
-                            {router.pathname !== '/' && <TopBar />}
-                            <Component {...pageProps} />
+                    <SideMenuProvider>
+                        <div className='flex flex-1'>
+                            {router.pathname !== '/' && <SideMenu />}
+                            <div className='flex flex-col flex-1'>
+                                {router.pathname !== '/' && <TopBar />}
+                                <Component {...pageProps} />
+                            </div>
                         </div>
-                    </div>
+                    </SideMenuProvider>
                 </ItemCRUDProvider>
             </TabsProvider>
         </>

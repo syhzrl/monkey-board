@@ -1,22 +1,20 @@
 import React, { FunctionComponent, useState } from 'react';
-// import { useAutoAnimate } from '@formkit/auto-animate/react';
+import { Boards, Files, Drawings } from '@prisma/client';
 
 import { Chevron, Folder } from 'assets/icons';
 
 import FileButton from './FileButton';
-
-import { Tab } from '../entities/tabs';
+import { ModuleType } from '../entities/tabs';
 
 interface FolderButtonProps {
     folderLabel: string;
-    files: Tab[];
+    files: Boards[] | Files[] | Drawings[];
+    type: ModuleType
 }
 
 const FolderButton: FunctionComponent<FolderButtonProps> = (props: FolderButtonProps) => {
-    const { folderLabel, files } = props;
+    const { folderLabel, files, type } = props;
     const [showFiles, setShowFiles] = useState(false);
-
-    // const [parent] = useAutoAnimate<HTMLDivElement>();
 
     return (
         <div className='flex flex-col w-full'>
@@ -39,12 +37,12 @@ const FolderButton: FunctionComponent<FolderButtonProps> = (props: FolderButtonP
 
             {showFiles && (
                 <>
-                    {files.map(item => {
-                        const { label, type } = item;
+                    {files.map((item) => {
+                        const { id, name } = item;
                         return (
                             <FileButton
-                                key={label}
-                                label={label}
+                                key={id}
+                                label={name}
                                 type={type}
                             />
                         );
