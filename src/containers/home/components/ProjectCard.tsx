@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { Project } from '@prisma/client';
-import { useRouter } from 'next/router';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 import { Delete, Edit } from 'assets/icons';
 
@@ -17,6 +17,7 @@ interface ProjectCardProps {
 
 const ProjectCard: FunctionComponent<ProjectCardProps> = (props: ProjectCardProps) => {
     const { id, name, desc, deleteClickHandler, updateClickHandler } = props;
+
     const router = useRouter();
 
     return (
@@ -45,7 +46,10 @@ const ProjectCard: FunctionComponent<ProjectCardProps> = (props: ProjectCardProp
                     <div className='flex items-center justify-between w-full'>
                         <button
                             type='button'
-                            onClick={() => router.push(`project/${id}`)}
+                            onClick={() => router.push({
+                                pathname: `project/${id}`,
+                                query: { projectName: name, projectDesc: desc },
+                            }, `project/${id}`)}
                             className='p-2 text-white transition-colors duration-150 rounded-md bg-button-grey hover:bg-button-grey-hover'
                         >
                             view-project
@@ -70,7 +74,6 @@ const ProjectCard: FunctionComponent<ProjectCardProps> = (props: ProjectCardProp
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     );

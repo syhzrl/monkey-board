@@ -32,7 +32,7 @@ const TopBar: FunctionComponent = () => {
     if (openedTabs.length < 1) return null;
 
     return (
-        <div className='w-full border-b border-b-line'>
+        <div className='sticky top-0 w-full border-b border-b-line bg-primary-med'>
             {openedTabs.map(tab => {
                 return (
                     <button

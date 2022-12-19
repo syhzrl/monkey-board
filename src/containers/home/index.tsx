@@ -86,7 +86,7 @@ const HomeScreen: FunctionComponent = () => {
     };
 
     return (
-        <div className='relative flex flex-col items-center flex-1'>
+        <div className='relative flex flex-col items-center flex-1 gap-2'>
             <p className='mt-4 text-3xl'>
                 Monkey Board
             </p>

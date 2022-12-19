@@ -20,9 +20,14 @@ import Tick from './tick.svg';
 import Board from './board.svg';
 import Delete from './delete.svg';
 import Edit from './edit.svg';
+import Plus from './plus.svg';
+import Excalidraw from './excalidraw.svg';
+import Pencil from './pencil.svg';
 
 export {
     LinkedIn,
+    Pencil,
+    Excalidraw,
     Email,
     Github,
     LinkedInFull,
@@ -44,4 +49,5 @@ export {
     Board,
     Delete,
     Edit,
+    Plus,
 };

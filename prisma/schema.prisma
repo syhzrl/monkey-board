@@ -12,7 +12,40 @@ datasource db {
 }
 
 model Project {
-  id   String @id @default(uuid())
-  name String
-  desc String
+  id             String          @id @default(uuid())
+  name           String
+  desc           String
+  projectDetails ProjectDetails?
+}
+
+model ProjectDetails {
+  id        String     @id @default(uuid())
+  name      String     @default("")
+  desc      String     @default("")
+  projectId String     @unique
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  boards    Boards[]
+  files     Files[]
+  drawings  Drawings[]
+}
+
+model Boards {
+  id               String         @id @default(uuid())
+  name             String
+  projectDetailsId String
+  projectDetails   ProjectDetails @relation(fields: [projectDetailsId], references: [id], onDelete: Cascade)
+}
+
+model Files {
+  id               String         @id @default(uuid())
+  name             String
+  projectDetailsId String
+  projectDetails   ProjectDetails @relation(fields: [projectDetailsId], references: [id], onDelete: Cascade)
+}
+
+model Drawings {
+  id               String         @id @default(uuid())
+  name             String
+  projectDetailsId String
+  projectDetails   ProjectDetails @relation(fields: [projectDetailsId], references: [id], onDelete: Cascade)
 }

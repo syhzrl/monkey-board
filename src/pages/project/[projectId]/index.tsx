@@ -1,4 +1,5 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
+import React, { FunctionComponent } from 'react';
+
 import ProjectDetailsScreen from 'containers/project';
 
 const ProjectDetails: FunctionComponent = () => {

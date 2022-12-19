@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { nanoid } from 'nanoid';
 import { router, publicProcedure } from '../trpc';
 
 export const projectRouter = router({
@@ -14,7 +15,18 @@ export const projectRouter = router({
             desc: z.string().min(1, { message: 'Description cannot be empty' }),
         }))
         .mutation(async ({ input, ctx }) => {
-            await ctx.prisma.project.create({ data: input });
+            await ctx.prisma.project.create({
+                data: {
+                    ...input,
+                    projectDetails: {
+                        create: {
+                            id: nanoid(),
+                            name: input.name,
+                            desc: input.desc,
+                        },
+                    },
+                },
+            });
         }),
     updateProject: publicProcedure
         .input(z.object({
@@ -40,5 +52,23 @@ export const projectRouter = router({
                     id: input.id,
                 },
             });
+        }),
+    getProjectDetails: publicProcedure
+        .input(z.object({
+            id: z.string(),
+        }))
+        .query(async ({ input, ctx }) => {
+            const res = await ctx.prisma.projectDetails.findFirst({
+                where: {
+                    projectId: input.id,
+                },
+                include: {
+                    boards: true,
+                    files: true,
+                    drawings: true,
+
+                },
+            });
+            return res;
         }),
 });
