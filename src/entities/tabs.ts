@@ -1,11 +1,12 @@
 export enum ModuleType {
-    board,
-    file,
-    drawing,
-    none,
+  board,
+  file,
+  drawing,
+  none,
 }
 
 export interface Tab {
-    label: string;
-    type: ModuleType;
+  id: string;
+  label: string;
+  type: ModuleType;
 }

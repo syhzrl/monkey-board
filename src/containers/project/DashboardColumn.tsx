@@ -3,72 +3,56 @@ import { Boards, Files, Drawings } from '@prisma/client';
 import { useRouter } from 'next/router';
 
 import { ItemCRUDContext } from 'contexts/ItemCRUD';
-import { TabsContext } from 'contexts/Tabs';
+import { SelectedItemContext } from 'contexts/SelectedItem';
 
 import { Board, File, Pencil, Plus } from 'assets/icons';
 
-import { ModuleType, Tab } from '../../entities/tabs';
-
 interface DashboardColumnProps {
-    label: string;
+    type: string;
     data: Boards[] | Files[] | Drawings[];
 }
 
 const DashboardColumn: FunctionComponent<DashboardColumnProps> = (props: DashboardColumnProps) => {
-    const { label, data } = props;
+    const { type, data } = props;
 
     const [buttonHoverColour, setButtonHoverColour] = useState('');
+    const [columnLabel, setColumnLabel] = useState('');
 
-    const { setSelectedItemType, setIsCreateModalOpen } = useContext(ItemCRUDContext);
-    const { setOpenedTabs } = useContext(TabsContext);
+    const { setIsCreateModalOpen, setSelectedCRUDType } = useContext(ItemCRUDContext);
+    const { setSelectedItem } = useContext(SelectedItemContext);
 
     const router = useRouter();
 
     const { projectId = '' } = router.query as { projectId: string };
 
     useEffect(() => {
-        switch (label) {
-            case 'Boards': setButtonHoverColour('hover:text-accent-yellow'); break;
-            case 'Files': setButtonHoverColour('hover:text-accent-green'); break;
-            case 'Drawings': setButtonHoverColour('hover:text-secondary-purple'); break;
+        switch (type) {
+            case 'board': setColumnLabel('Boards'); setButtonHoverColour('hover:text-accent-yellow'); break;
+            case 'file': setColumnLabel('Files'); setButtonHoverColour('hover:text-accent-green'); break;
+            case 'drawing': setColumnLabel('Drawings'); setButtonHoverColour('hover:text-secondary-purple'); break;
             default:
         }
-    }, [label]);
+    }, [type]);
 
     const createClickHandler = () => {
-        switch (label) {
-            case 'Boards': setSelectedItemType(ModuleType.board); break;
-            case 'Files': setSelectedItemType(ModuleType.file); break;
-            case 'Drawings': setSelectedItemType(ModuleType.drawing); break;
-            default:
-        }
-
+        setSelectedCRUDType(type);
         setIsCreateModalOpen(true);
     };
 
     const itemClickHandler = (itemId: string) => {
-        setOpenedTabs((prev: Tab[]) => {
-            let itemType = ModuleType.none;
-
-            switch (label) {
-                case 'Boards': itemType = ModuleType.board; break;
-                case 'Files': itemType = ModuleType.file; break;
-                case 'Drawings': itemType = ModuleType.drawing; break;
-                default:
-            }
-
-            if (prev.find(item => item.label === label)) return prev;
-            return [...prev, { label, type: itemType }];
+        setSelectedItem({
+            id: itemId,
+            type,
         });
 
-        router.push(`${projectId}/${itemId}`);
+        router.push({ pathname: `/project/${projectId}`, query: { selectedItemId: itemId, selectedItemType: type } });
     };
 
     const renderIcon = () => {
-        switch (label) {
-            case 'Boards': return <Board className='text-8xl text-inherit' />;
-            case 'Files': return <File className='text-8xl text-inherit' />;
-            case 'Drawings': return <Pencil className='text-8xl text-inherit' />;
+        switch (type) {
+            case 'board': return <Board className='text-8xl text-inherit' />;
+            case 'file': return <File className='text-8xl text-inherit' />;
+            case 'drawing': return <Pencil className='text-8xl text-inherit' />;
             default: return <Board className='text-8xl text-inherit' />;
         }
     };
@@ -76,7 +60,7 @@ const DashboardColumn: FunctionComponent<DashboardColumnProps> = (props: Dashboa
     return (
         <div className='flex flex-col gap-2 mb-12'>
             <h2 className='text-xl text-white'>
-                {label}
+                {columnLabel}
             </h2>
 
             <div className='w-full mb-2 border-b border-b-line' />
@@ -87,7 +71,6 @@ const DashboardColumn: FunctionComponent<DashboardColumnProps> = (props: Dashboa
                     return (
                         <button
                             key={id}
-                            // onClick={() => router.push(`${projectId}/${id}`)}
                             onClick={() => itemClickHandler(id)}
                             className={`flex flex-col gap-1 transition-colors duration-150 ${buttonHoverColour}`}
                         >

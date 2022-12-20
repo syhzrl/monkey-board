@@ -1,34 +1,56 @@
 import React, { FunctionComponent, useContext } from 'react';
+import { useRouter } from 'next/router';
 
-import { TabsContext } from 'contexts/Tabs';
+import { SelectedItemContext } from 'contexts/SelectedItem';
 
 import { File, Chevron, Board, Pencil } from 'assets/icons';
 
-import { ModuleType, Tab } from '../entities/tabs';
-
 interface FileButtonProps {
+    id: string;
     label: string;
-    type: ModuleType;
+    parentLabel: string;
 }
 
 const FileButton: FunctionComponent<FileButtonProps> = (props: FileButtonProps) => {
-    const { label, type } = props;
+    const { id, label, parentLabel } = props;
 
-    const { setOpenedTabs, setSelectedTab, selectedTab } = useContext(TabsContext);
+    const { selectedItem, setSelectedItem } = useContext(SelectedItemContext);
+
+    const { id: selectedItemId = '' } = selectedItem;
+
+    const router = useRouter();
+
+    const { projectId = '' } = router.query as { projectId: string };
 
     const onClickHandler = () => {
-        setSelectedTab({ label, type });
-        setOpenedTabs((prev: Tab[]) => {
-            if (prev.find(item => item.label === label)) return prev;
-            return [...prev, { label, type }];
+        let type = '';
+
+        switch (parentLabel) {
+            case 'Boards': type = 'board'; break;
+            case 'Files': type = 'file'; break;
+            case 'Drawings': type = 'drawing'; break;
+            default: type = ''; break;
+        }
+
+        setSelectedItem({
+            id,
+            type,
+        });
+
+        router.push({
+            pathname: `/project/${projectId}`,
+            query: {
+                selectedItemId: id,
+                selectedItemType: type,
+            },
         });
     };
 
     const renderIcon = () => {
-        switch (type) {
-            case ModuleType.board: return <Board className='text-xl' />;
-            case ModuleType.file: return <File className='text-xl' />;
-            case ModuleType.drawing: return <Pencil className='text-xl' />;
+        switch (parentLabel) {
+            case 'Boards': return <Board className='text-xl' />;
+            case 'Files': return <File className='text-xl' />;
+            case 'Drawings': return <Pencil className='text-xl' />;
             default: return <Board className='text-xl' />;
         }
     };
@@ -44,7 +66,7 @@ const FileButton: FunctionComponent<FileButtonProps> = (props: FileButtonProps) 
 
             {renderIcon()}
 
-            <p className={`${selectedTab.label === label ? 'text-accent-yellow' : 'text-white'}`}>
+            <p className={`${selectedItemId === id ? 'text-accent-yellow' : 'text-white'}`}>
                 {label}
             </p>
         </button>

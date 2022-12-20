@@ -9,7 +9,6 @@ import useDetectClickOutside from 'hooks/useDetectClickOutside';
 import { Close } from 'assets/icons';
 
 import Spinner from 'components/Spinner';
-import { ModuleType } from '../../entities/tabs';
 
 interface CreateItemModalProps {
     isOpen: boolean;
@@ -19,24 +18,44 @@ interface CreateItemModalProps {
 const CreateItemModal: FunctionComponent<CreateItemModalProps> = (props: CreateItemModalProps) => {
     const { isOpen, closeModalHandler } = props;
 
-    const { selectedItemType, currentProjectDetailsId } = useContext(ItemCRUDContext);
+    const { selectedCRUDType, currentProjectDetailsId } = useContext(ItemCRUDContext);
 
     const [itemName, setItemName] = useState('');
 
     const [modalLabel, setModalLabel] = useState('');
 
     useEffect(() => {
-        switch (selectedItemType) {
-            case ModuleType.board: setModalLabel('Board'); break;
-            case ModuleType.file: setModalLabel('File'); break;
-            case ModuleType.drawing: setModalLabel('Drawing'); break;
+        switch (selectedCRUDType) {
+            case 'board': setModalLabel('Board'); break;
+            case 'file': setModalLabel('File'); break;
+            case 'drawing': setModalLabel('Drawing'); break;
             default: setModalLabel(''); break;
         }
-    }, [selectedItemType]);
+    }, [selectedCRUDType]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            setItemName('');
+        }
+    }, [isOpen]);
 
     const utils = trpc.useContext();
 
-    const { mutate: createBoard, isLoading, error } = trpc.boards.createBoard.useMutation({
+    const { mutate: createBoard, isLoading: isCreateBoardLoading, error: createBoardError } = trpc.boards.createBoard.useMutation({
+        onSuccess: () => {
+            closeModalHandler(false);
+            utils.project.getProjectDetails.invalidate();
+        },
+    });
+
+    const { mutate: createFile, isLoading: isCreateFileLoading, error: createFileError } = trpc.files.createFile.useMutation({
+        onSuccess: () => {
+            closeModalHandler(false);
+            utils.project.getProjectDetails.invalidate();
+        },
+    });
+
+    const { mutate: createDrawing, isLoading: isCreateDrawingLoading, error: createDrawingError } = trpc.drawings.createDrawing.useMutation({
         onSuccess: () => {
             closeModalHandler(false);
             utils.project.getProjectDetails.invalidate();
@@ -48,10 +67,53 @@ const CreateItemModal: FunctionComponent<CreateItemModalProps> = (props: CreateI
     useDetectClickOutside(ref, closeModalHandler);
 
     const confirmClickHandler = () => {
-        createBoard({
+        const dataToSubmit = {
             projectDetailsId: currentProjectDetailsId,
             name: itemName,
-        });
+        };
+
+        switch (selectedCRUDType) {
+            case 'board': createBoard(dataToSubmit); break;
+            case 'file': createFile(dataToSubmit); break;
+            case 'drawing': createDrawing(dataToSubmit); break;
+            default: break;
+        }
+    };
+
+    const renderError = () => {
+        let errorMsg = '';
+
+        if (createBoardError) {
+            errorMsg = createBoardError.shape?.frontEndMessage || '';
+        }
+
+        if (createFileError) {
+            errorMsg = createFileError.shape?.frontEndMessage || '';
+        }
+
+        if (createDrawingError) {
+            errorMsg = createDrawingError.shape?.frontEndMessage || '';
+        }
+
+        return (
+            <p className='text-red-800'>
+                {errorMsg}
+            </p>
+        );
+    };
+
+    const renderSpinnerOrButtonLabel = () => {
+        if (isCreateBoardLoading || isCreateFileLoading || isCreateDrawingLoading) {
+            return (
+                <div className='w-[40px] h-[40px]'>
+                    <Spinner />
+                </div>
+            );
+        }
+
+        return (
+            <p>Create</p>
+        );
     };
 
     if (!isOpen) return null;
@@ -81,20 +143,14 @@ const CreateItemModal: FunctionComponent<CreateItemModalProps> = (props: CreateI
                     />
                 </div>
 
-                {error && <p className='text-red-800'>{error.shape?.frontEndMessage}</p>}
+                {renderError()}
 
                 <div className='flex justify-end gap-4'>
                     <button
                         onClick={confirmClickHandler}
                         className='p-2 px-4 text-white transition-colors duration-150 rounded-md w-fit bg-button-grey hover:bg-button-grey-hover'
                     >
-                        {isLoading ? (
-                            <div className='w-[40px] h-[40px]'>
-                                <Spinner />
-                            </div>
-                        ) : (
-                            <p>Create</p>
-                        )}
+                        {renderSpinnerOrButtonLabel()}
                     </button>
                 </div>
             </div>

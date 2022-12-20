@@ -4,23 +4,22 @@ import { Boards, Files, Drawings } from '@prisma/client';
 import { Chevron, Folder } from 'assets/icons';
 
 import FileButton from './FileButton';
-import { ModuleType } from '../entities/tabs';
 
 interface FolderButtonProps {
     folderLabel: string;
     files: Boards[] | Files[] | Drawings[];
-    type: ModuleType
 }
 
 const FolderButton: FunctionComponent<FolderButtonProps> = (props: FolderButtonProps) => {
-    const { folderLabel, files, type } = props;
-    const [showFiles, setShowFiles] = useState(false);
+    const { folderLabel, files } = props;
+
+    const [showFiles, setShowFiles] = useState(true);
 
     return (
         <div className='flex flex-col w-full'>
             <button
                 onClick={() => setShowFiles(!showFiles)}
-                className='flex items-center w-full gap-2 p-2 px-4 text-md'
+                className='flex items-center w-full gap-2 p-2 px-4 text-md text-secondary-grey'
             >
                 <Chevron
                     className={`text-inherit ${showFiles && 'rotate-90'} transition-transform duration-150`}
@@ -42,8 +41,9 @@ const FolderButton: FunctionComponent<FolderButtonProps> = (props: FolderButtonP
                         return (
                             <FileButton
                                 key={id}
+                                id={id}
                                 label={name}
-                                type={type}
+                                parentLabel={folderLabel}
                             />
                         );
                     })}

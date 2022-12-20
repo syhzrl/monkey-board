@@ -1,5 +1,4 @@
 import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
-import autoAnimate from '@formkit/auto-animate';
 import { Project } from '@prisma/client';
 
 import { trpc } from 'utils/trpc';
@@ -21,14 +20,6 @@ const HomeScreen: FunctionComponent = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-
-    const parent = useRef(null);
-
-    useEffect(() => {
-        if (parent.current) {
-            autoAnimate(parent.current);
-        }
-    }, [parent]);
 
     const deleteProjectCardClickHandler = (projId: string) => {
         setselectedProjectId(projId);
@@ -62,7 +53,7 @@ const HomeScreen: FunctionComponent = () => {
         }
 
         return (
-            <div ref={parent} className='grid content-center justify-center grid-cols-3 gap-10 p-4 w-fit place-items-center'>
+            <div className='grid content-center justify-center grid-cols-3 gap-10 p-4 w-fit place-items-center'>
                 {data.map((item) => {
                     const { id, name, desc } = item;
 

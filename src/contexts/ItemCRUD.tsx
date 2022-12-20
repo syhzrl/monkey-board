@@ -1,9 +1,8 @@
 import React, { createContext, useState, FunctionComponent, useMemo } from 'react';
-import { ModuleType } from '../entities/tabs';
 
 interface ItemCRUDInterface {
-    selectedItemType: ModuleType;
-    setSelectedItemType: React.Dispatch<React.SetStateAction<ModuleType>>;
+    selectedCRUDType: string;
+    setSelectedCRUDType: React.Dispatch<React.SetStateAction<string>>;
 
     isCreateModalOpen: boolean;
     setIsCreateModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -13,8 +12,8 @@ interface ItemCRUDInterface {
 }
 
 const initialState: ItemCRUDInterface = {
-    selectedItemType: ModuleType.none,
-    setSelectedItemType: () => null,
+    selectedCRUDType: '',
+    setSelectedCRUDType: () => null,
 
     isCreateModalOpen: false,
     setIsCreateModalOpen: () => null,
@@ -32,20 +31,20 @@ interface ItemCRUDProviderProps {
 const ItemCRUDProvider: FunctionComponent<ItemCRUDProviderProps> = (props: ItemCRUDProviderProps) => {
     const { children } = props;
 
-    const [selectedItemType, setSelectedItemType] = useState(ModuleType.none);
+    const [selectedCRUDType, setSelectedCRUDType] = useState('');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [currentProjectDetailsId, setCurrentProjectDetailsId] = useState('');
 
     const memoValue: ItemCRUDInterface = useMemo(() => ({
-        selectedItemType,
-        setSelectedItemType,
+        selectedCRUDType,
+        setSelectedCRUDType,
         isCreateModalOpen,
         setIsCreateModalOpen,
         currentProjectDetailsId,
         setCurrentProjectDetailsId,
     }), [
-        selectedItemType,
-        setSelectedItemType,
+        selectedCRUDType,
+        setSelectedCRUDType,
         isCreateModalOpen,
         setIsCreateModalOpen,
         currentProjectDetailsId,

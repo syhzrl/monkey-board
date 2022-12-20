@@ -11,6 +11,7 @@ interface TabsContextInterface {
 
 const initialState: TabsContextInterface = {
     selectedTab: {
+        id: '',
         label: '',
         type: ModuleType.none,
     },
@@ -30,6 +31,7 @@ const TabsProvider: FunctionComponent<TabsProviderProps> = (props: TabsProviderP
     const { children } = props;
 
     const [selectedTab, setSelectedTab] = useState<Tab>({
+        id: '',
         label: '',
         type: ModuleType.none,
     });

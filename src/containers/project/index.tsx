@@ -1,16 +1,14 @@
-import React, { FunctionComponent, useContext, useEffect } from 'react';
+import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
+import { Boards, Files, Drawings } from '@prisma/client';
 import { useRouter } from 'next/router';
 
 import { trpc } from 'utils/trpc';
 
-import { TabsContext } from 'contexts/Tabs';
-
 import SideMenu from 'components/SideMenu';
-import TopBar from 'components/TopBar';
 import LoadingModal from 'components/LoadingModal';
 
 import { ItemCRUDContext } from 'contexts/ItemCRUD';
-import { SideMenuContext } from 'contexts/SideMenu';
+import { SelectedItemContext } from 'contexts/SelectedItem';
 
 import Board from './Board';
 import Dashboard from './Dashboard';
@@ -18,60 +16,98 @@ import File from './File';
 import Draw from './Draw';
 import CreateItemModal from './CreateItemModal';
 
-import { ModuleType } from '../../entities/tabs';
-
 const ProjectDetailsScreen: FunctionComponent = () => {
-    const { selectedTab } = useContext(TabsContext);
-
     const router = useRouter();
 
-    const { projectId = '' } = router.query as { projectId: string };
+    const {
+        projectId = '',
+        selectedItemId = '',
+        selectedItemType = '',
+    } = router.query as {
+        projectId: string,
+        selectedItemId: string,
+        selectedItemType: string
+    };
 
-    const { data, isLoading, error } = trpc.project.getProjectDetails.useQuery({ id: projectId });
+    const { data, isLoading, isError, error } = trpc.project.getProjectDetails.useQuery({ id: projectId });
 
     const { isCreateModalOpen, setIsCreateModalOpen, setCurrentProjectDetailsId } = useContext(ItemCRUDContext);
-    const { setBoardsData, setDrawingsData, setFilesData } = useContext(SideMenuContext);
+    const { selectedItem, setSelectedItem } = useContext(SelectedItemContext);
+
+    const [projectName, setProjectName] = useState('Project Name');
+    const [projectDesc, setProjectDesc] = useState('Project Description');
+
+    const [boardsData, setBoardsData] = useState<Boards[]>([]);
+    const [filesData, setFilesData] = useState<Files[]>([]);
+    const [drawingsData, setDrawingsData] = useState<Drawings[]>([]);
+
+    useEffect(() => {
+        if (selectedItemId && selectedItemType) {
+            setSelectedItem({
+                id: selectedItemId,
+                type: selectedItemType,
+            });
+        } else {
+            setSelectedItem({
+                id: '',
+                type: '',
+            });
+        }
+    }, [selectedItemId, selectedItemType, setSelectedItem]);
 
     useEffect(() => {
         if (data) {
-            const { id, boards, files, drawings } = data;
+            const { id, name, desc, boards, files, drawings } = data;
+
             setCurrentProjectDetailsId(id);
+            setProjectName(name);
+            setProjectDesc(desc);
             setBoardsData(boards);
             setDrawingsData(drawings);
             setFilesData(files);
         }
     }, [data, setCurrentProjectDetailsId, setBoardsData, setDrawingsData, setFilesData]);
 
-    // const renderPageContent = () => {
-    //     switch (selectedTab.type) {
-    //         case ModuleType.board: return <Board />;
-    //         case ModuleType.file: return <File />;
-    //         case ModuleType.drawing: return <Draw />;
-    //         default: return (
-    //             <Dashboard
-    //                 projectName={data?.name || 'Project Name'}
-    //                 projectDesc={data?.desc || 'Project Description'}
-    //                 boardsData={data?.boards || []}
-    //             />
-    //         );
-    //     }
-    // };
+    const renderPageContent = () => {
+        const { type } = selectedItem;
+
+        switch (type) {
+            case 'board': return <Board />;
+            case 'file': return <File />;
+            case 'drawing': return <Draw />;
+            default: return (
+                <Dashboard
+                    projectName={projectName}
+                    projectDesc={projectDesc}
+                    boardsData={boardsData}
+                    filesData={filesData}
+                    drawingsData={drawingsData}
+                />
+            );
+        }
+    };
 
     return (
         <div className='flex w-full'>
-            <Dashboard
-                projectName={data?.name || 'Project Name'}
-                projectDesc={data?.desc || 'Project Description'}
-                boardsData={data?.boards || []}
+            <SideMenu
+                projectName={projectName}
+                boardsData={boardsData}
+                filesData={filesData}
+                drawingsData={drawingsData}
             />
+
+            {renderPageContent()}
 
             <CreateItemModal
                 isOpen={isCreateModalOpen}
                 closeModalHandler={setIsCreateModalOpen}
             />
 
-            {/* TODO PUT ERROR IN THIS MODAL */}
-            <LoadingModal isOpen={isLoading} />
+            <LoadingModal
+                isOpen={isLoading}
+                isError={isError}
+                error={error?.shape?.frontEndMessage || ''}
+            />
         </div>
     );
 };
