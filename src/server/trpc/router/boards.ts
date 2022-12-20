@@ -17,4 +17,30 @@ export const boardsRouter = router({
                 },
             });
         }),
+    editBoard: publicProcedure
+        .input(z.object({
+            id: z.string(),
+            name: z.string().min(1),
+        }))
+        .mutation(async ({ input, ctx }) => {
+            await ctx.prisma.boards.update({
+                where: {
+                    id: input.id,
+                },
+                data: {
+                    name: input.name,
+                },
+            });
+        }),
+    deleteBoard: publicProcedure
+        .input(z.object({
+            id: z.string(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+            await ctx.prisma.boards.delete({
+                where: {
+                    id: input.id,
+                },
+            });
+        }),
 });

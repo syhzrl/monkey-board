@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 
 import { ItemCRUDContext } from 'contexts/ItemCRUD';
 import { SelectedItemContext } from 'contexts/SelectedItem';
+import { RightClickMenuContext } from 'contexts/RightClickMenu';
 
 import { Board, File, Pencil, Plus } from 'assets/icons';
 
@@ -18,8 +19,9 @@ const DashboardColumn: FunctionComponent<DashboardColumnProps> = (props: Dashboa
     const [buttonHoverColour, setButtonHoverColour] = useState('');
     const [columnLabel, setColumnLabel] = useState('');
 
-    const { setIsCreateModalOpen, setSelectedCRUDType } = useContext(ItemCRUDContext);
+    const { setIsCreateModalOpen, setSelectedCRUDType, setSelectedItem: setSelectedCRUDItem } = useContext(ItemCRUDContext);
     const { setSelectedItem } = useContext(SelectedItemContext);
+    const { setCoords, setIsOpen } = useContext(RightClickMenuContext);
 
     const router = useRouter();
 
@@ -72,7 +74,17 @@ const DashboardColumn: FunctionComponent<DashboardColumnProps> = (props: Dashboa
                         <button
                             key={id}
                             onClick={() => itemClickHandler(id)}
-                            className={`flex flex-col gap-1 transition-colors duration-150 ${buttonHoverColour}`}
+                            onContextMenu={(e) => {
+                                e.preventDefault();
+                                setCoords({
+                                    x: e.clientX,
+                                    y: e.clientY,
+                                });
+                                setSelectedCRUDType(type);
+                                setSelectedCRUDItem({ id, name });
+                                setIsOpen(true);
+                            }}
+                            className={`flex flex-col gap-1 transition-colors duration-150 ${buttonHoverColour} focus:outline-none`}
                         >
 
                             <div className='flex items-center justify-center p-4 border rounded-md border-line'>
@@ -80,7 +92,6 @@ const DashboardColumn: FunctionComponent<DashboardColumnProps> = (props: Dashboa
                             </div>
 
                             <p>{name}</p>
-
                         </button>
                     );
                 })}

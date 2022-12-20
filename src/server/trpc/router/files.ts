@@ -17,4 +17,30 @@ export const filesRouter = router({
                 },
             });
         }),
+    editFile: publicProcedure
+        .input(z.object({
+            id: z.string(),
+            name: z.string().min(1),
+        }))
+        .mutation(async ({ input, ctx }) => {
+            await ctx.prisma.files.update({
+                where: {
+                    id: input.id,
+                },
+                data: {
+                    name: input.name,
+                },
+            });
+        }),
+    deleteFile: publicProcedure
+        .input(z.object({
+            id: z.string(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+            await ctx.prisma.files.delete({
+                where: {
+                    id: input.id,
+                },
+            });
+        }),
 });

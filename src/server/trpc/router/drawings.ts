@@ -17,4 +17,30 @@ export const drawingsRouter = router({
                 },
             });
         }),
+    editDrawing: publicProcedure
+        .input(z.object({
+            id: z.string(),
+            name: z.string().min(1),
+        }))
+        .mutation(async ({ input, ctx }) => {
+            await ctx.prisma.drawings.update({
+                where: {
+                    id: input.id,
+                },
+                data: {
+                    name: input.name,
+                },
+            });
+        }),
+    deleteDrawing: publicProcedure
+        .input(z.object({
+            id: z.string(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+            await ctx.prisma.drawings.delete({
+                where: {
+                    id: input.id,
+                },
+            });
+        }),
 });

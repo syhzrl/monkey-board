@@ -15,6 +15,9 @@ import Dashboard from './Dashboard';
 import File from './File';
 import Draw from './Draw';
 import CreateItemModal from './CreateItemModal';
+import RightClickMenu from './components/RightClickMenu';
+import EditItemModal from './EditItemModal';
+import DeleteItemModal from './DeleteItemModal';
 
 const ProjectDetailsScreen: FunctionComponent = () => {
     const router = useRouter();
@@ -31,7 +34,7 @@ const ProjectDetailsScreen: FunctionComponent = () => {
 
     const { data, isLoading, isError, error } = trpc.project.getProjectDetails.useQuery({ id: projectId });
 
-    const { isCreateModalOpen, setIsCreateModalOpen, setCurrentProjectDetailsId } = useContext(ItemCRUDContext);
+    const { isCreateModalOpen, setIsCreateModalOpen, setCurrentProjectDetailsId, isEditModalOpen, setIsEditModalOpen, isDeleteModalOpen, setIsDeleteModalOpen } = useContext(ItemCRUDContext);
     const { selectedItem, setSelectedItem } = useContext(SelectedItemContext);
 
     const [projectName, setProjectName] = useState('Project Name');
@@ -103,11 +106,23 @@ const ProjectDetailsScreen: FunctionComponent = () => {
                 closeModalHandler={setIsCreateModalOpen}
             />
 
+            <EditItemModal
+                isOpen={isEditModalOpen}
+                closeModalHandler={setIsEditModalOpen}
+            />
+
+            <DeleteItemModal
+                isOpen={isDeleteModalOpen}
+                closeModalHandler={setIsDeleteModalOpen}
+            />
+
             <LoadingModal
                 isOpen={isLoading}
                 isError={isError}
                 error={error?.shape?.frontEndMessage || ''}
             />
+
+            <RightClickMenu />
         </div>
     );
 };

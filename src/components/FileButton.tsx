@@ -1,7 +1,9 @@
-import React, { FunctionComponent, useContext } from 'react';
+import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 import { SelectedItemContext } from 'contexts/SelectedItem';
+import { ItemCRUDContext } from 'contexts/ItemCRUD';
+import { RightClickMenuContext } from 'contexts/RightClickMenu';
 
 import { File, Chevron, Board, Pencil } from 'assets/icons';
 
@@ -14,7 +16,12 @@ interface FileButtonProps {
 const FileButton: FunctionComponent<FileButtonProps> = (props: FileButtonProps) => {
     const { id, label, parentLabel } = props;
 
+    const [iconColour, setIconColour] = useState('');
+    const [buttonType, setButtonType] = useState('');
+
     const { selectedItem, setSelectedItem } = useContext(SelectedItemContext);
+    const { setSelectedCRUDType, setSelectedItem: setSelectedCRUDItem } = useContext(ItemCRUDContext);
+    const { setCoords, setIsOpen } = useContext(RightClickMenuContext);
 
     const { id: selectedItemId = '' } = selectedItem;
 
@@ -22,43 +29,53 @@ const FileButton: FunctionComponent<FileButtonProps> = (props: FileButtonProps) 
 
     const { projectId = '' } = router.query as { projectId: string };
 
-    const onClickHandler = () => {
-        let type = '';
-
+    useEffect(() => {
         switch (parentLabel) {
-            case 'Boards': type = 'board'; break;
-            case 'Files': type = 'file'; break;
-            case 'Drawings': type = 'drawing'; break;
-            default: type = ''; break;
+            case 'Boards': setIconColour('text-accent-yellow'); setButtonType('board'); break;
+            case 'Files': setIconColour('text-accent-green'); setButtonType('file'); break;
+            case 'Drawings': setIconColour('text-secondary-purple'); setButtonType('drawing'); break;
+            default: setIconColour('text-accent-yellow');
         }
+    }, [parentLabel]);
 
+    const onClickHandler = () => {
         setSelectedItem({
             id,
-            type,
+            type: buttonType,
         });
 
         router.push({
             pathname: `/project/${projectId}`,
             query: {
                 selectedItemId: id,
-                selectedItemType: type,
+                selectedItemType: buttonType,
             },
         });
     };
 
     const renderIcon = () => {
         switch (parentLabel) {
-            case 'Boards': return <Board className='text-xl' />;
-            case 'Files': return <File className='text-xl' />;
-            case 'Drawings': return <Pencil className='text-xl' />;
-            default: return <Board className='text-xl' />;
+            case 'Boards': return <Board className={`text-xl ${selectedItemId === id ? iconColour : 'text-secondary-grey'}`} />;
+            case 'Files': return <File className={`text-xl ${selectedItemId === id ? iconColour : 'text-secondary-grey'}`} />;
+            case 'Drawings': return <Pencil className={`text-xl ${selectedItemId === id ? iconColour : 'text-secondary-grey'}`} />;
+            default: return <Board className={`text-xl ${selectedItemId === id ? iconColour : 'text-secondary-grey'}`} />;
         }
     };
 
     return (
         <button
             onClick={onClickHandler}
-            className='flex items-center w-full gap-2 p-2 px-4 text-md'
+            onContextMenu={(e) => {
+                e.preventDefault();
+                setCoords({
+                    x: e.clientX,
+                    y: e.clientY,
+                });
+                setSelectedCRUDType(buttonType);
+                setSelectedCRUDItem({ id, name: label });
+                setIsOpen(true);
+            }}
+            className='flex items-center w-full gap-2 p-2 px-4 transition-colors duration-150 text-md hover:bg-primary-light whitespace-nowrap'
         >
             <Chevron
                 className='text-transparent'
@@ -66,7 +83,7 @@ const FileButton: FunctionComponent<FileButtonProps> = (props: FileButtonProps) 
 
             {renderIcon()}
 
-            <p className={`${selectedItemId === id ? 'text-accent-yellow' : 'text-white'}`}>
+            <p className={`${selectedItemId === id ? 'text-secondary-white' : 'text-secondary-grey'}`}>
                 {label}
             </p>
         </button>
