@@ -14,6 +14,12 @@ export const drawingsRouter = router({
                     id: nanoid(),
                     projectDetailsId: input.projectDetailsId,
                     name: input.name,
+                    drawingDetails: {
+                        create: {
+                            id: nanoid(),
+                            data: '',
+                        },
+                    },
                 },
             });
         }),
@@ -40,6 +46,35 @@ export const drawingsRouter = router({
             await ctx.prisma.drawings.delete({
                 where: {
                     id: input.id,
+                },
+            });
+        }),
+
+    getDrawingData: publicProcedure
+        .input(z.object({
+            drawingId: z.string(),
+        })).query(async ({ input, ctx }) => {
+            const res = await ctx.prisma.drawingDetails.findUnique({
+                where: {
+                    drawingId: input.drawingId,
+                },
+            });
+
+            return res;
+        }),
+
+    updateDrawingData: publicProcedure
+        .input(z.object({
+            id: z.string(),
+            data: z.string(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+            await ctx.prisma.drawingDetails.update({
+                where: {
+                    id: input.id,
+                },
+                data: {
+                    data: input.data,
                 },
             });
         }),

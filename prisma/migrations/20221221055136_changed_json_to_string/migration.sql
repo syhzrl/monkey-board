@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "DrawingDetails" ALTER COLUMN "data" SET NOT NULL,
+ALTER COLUMN "data" SET DATA TYPE TEXT;

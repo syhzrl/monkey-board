@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@excalidraw/excalidraw": "^0.13.0",
     "@prisma/client": "^4.7.1",
     "@tanstack/react-query": "^4.16.0",
     "@trpc/client": "^10.0.0",
@@ -16,6 +17,7 @@
     "@trpc/react-query": "^10.0.0",
     "@trpc/server": "^10.0.0",
     "autoprefixer": "^10.4.13",
+    "lodash.debounce": "^4.0.8",
     "nanoid": "^4.0.0",
     "next": "12.3.1",
     "postcss": "^8.4.19",
@@ -27,6 +29,7 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^6.5.1",
+    "@types/lodash.debounce": "^4.0.7",
     "@types/node": "18.11.7",
     "@types/react": "18.0.24",
     "@types/react-dom": "18.0.8",

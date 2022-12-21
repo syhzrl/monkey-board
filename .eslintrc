@@ -30,7 +30,8 @@
           ".js",
           ".jsx",
           ".ts",
-          ".tsx"
+          ".tsx",
+          ".d.ts"
         ]
       },
       "babel-module": {}
@@ -52,6 +53,7 @@
   },
   "rules": {
     "no-use-before-define": "off",
+    "react-hooks/exhaustive-deps": "off",
     "import/prefer-default-export": "off",
     "react/button-has-type": "off",
     "@typescript-eslint/no-use-before-define": [
