@@ -41,6 +41,15 @@ model Files {
   name             String
   projectDetailsId String
   projectDetails   ProjectDetails @relation(fields: [projectDetailsId], references: [id], onDelete: Cascade)
+  fileDetails      FileDetails?
+}
+
+model FileDetails {
+  id     String @id @default(uuid())
+  name   String
+  data   String
+  fileId String @unique
+  files  Files  @relation(fields: [fileId], references: [id], onDelete: Cascade)
 }
 
 model Drawings {

@@ -14,6 +14,13 @@ export const filesRouter = router({
                     id: nanoid(),
                     projectDetailsId: input.projectDetailsId,
                     name: input.name,
+                    fileDetails: {
+                        create: {
+                            id: nanoid(),
+                            name: input.name,
+                            data: '',
+                        },
+                    },
                 },
             });
         }),
@@ -40,6 +47,34 @@ export const filesRouter = router({
             await ctx.prisma.files.delete({
                 where: {
                     id: input.id,
+                },
+            });
+        }),
+    getFileData: publicProcedure
+        .input(z.object({
+            fileId: z.string(),
+        }))
+        .query(async ({ input, ctx }) => {
+            const res = await ctx.prisma.fileDetails.findUnique({
+                where: {
+                    fileId: input.fileId,
+                },
+            });
+
+            return res;
+        }),
+    updateFileData: publicProcedure
+        .input(z.object({
+            id: z.string(),
+            fileData: z.string(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+            await ctx.prisma.fileDetails.update({
+                where: {
+                    id: input.id,
+                },
+                data: {
+                    data: input.fileData,
                 },
             });
         }),

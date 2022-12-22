@@ -34,13 +34,15 @@ const Draw: FunctionComponent = () => {
     const { selectedItemId = '' } = router.query as { selectedItemId: string };
 
     // TODO Add loading and error handling here
-    const { data } = trpc.drawings.getDrawingData.useQuery({ drawingId: selectedItemId });
+    const { data, isLoading, error } = trpc.drawings.getDrawingData.useQuery({ drawingId: selectedItemId });
 
     return (
-        <div className='flex flex-col items-center justify-center flex-1'>
+        <div className='relative flex flex-col items-center justify-center flex-1'>
             <DrawingBoard
                 drawingId={data?.id || ''}
                 drawingData={data?.data || ''}
+                queryLoading={isLoading}
+                queryError={error?.shape?.frontEndMessage || ''}
             />
         </div>
     );

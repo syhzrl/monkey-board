@@ -1,0 +1,116 @@
+import React, { FunctionComponent, useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { useEditor, EditorContent, JSONContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Highlight from '@tiptap/extension-highlight';
+import Typography from '@tiptap/extension-typography';
+import TaskItem from '@tiptap/extension-task-item';
+import TaskList from '@tiptap/extension-task-list';
+import debounce from 'lodash.debounce';
+import { EditorView } from 'prosemirror-view';
+
+import { trpc } from 'utils/trpc';
+import Spinner from 'components/Spinner';
+
+const FileEditor: FunctionComponent = () => {
+    const router = useRouter();
+    const { selectedItemId = '' } = router.query as { selectedItemId: string };
+
+    const { data, isLoading: getFileLoading, error: getFileError } = trpc.files.getFileData.useQuery({ fileId: selectedItemId });
+    const { mutate: updateFile, isLoading: updateFileLoading, error: updateFileError } = trpc.files.updateFileData.useMutation();
+
+    const [fileName, setFileName] = useState('File Name');
+    const [fileId, setFileId] = useState('');
+
+    const editor = useEditor({
+        extensions: [
+            StarterKit,
+            Highlight,
+            Typography,
+            TaskList,
+            TaskItem.configure({
+                nested: true,
+            }),
+        ],
+        content: '',
+        onUpdate: (props) => {
+            debouncedUpdateHandler(props.editor.getJSON());
+        },
+        onDestroy: (props) => {
+            editor?.destroy();
+        },
+    }, [data, fileId]);
+
+    useEffect(() => {
+        if (data) {
+            const { id, name } = data;
+
+            setFileId(id);
+            setFileName(name);
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (editor) {
+            if (!editor.isDestroyed && editor.commands && !editor.view.dom) {
+                if (data) {
+                    const { data: fileData } = data;
+
+                    // editor.commands.setContent(fileData ? JSON.parse(fileData) : null);
+                }
+            }
+        }
+    }, [editor, data]);
+
+    const onChange = (content: JSONContent) => {
+        updateFile({
+            id: fileId,
+            fileData: JSON.stringify(content),
+        });
+    };
+
+    const debouncedUpdateHandler = debounce(onChange, 500, { leading: false });
+
+    const renderLoaderOrError = () => {
+        if (getFileLoading || updateFileLoading) {
+            return (
+                <div className='w-[40px] h-[40px]'>
+                    <Spinner />
+                </div>
+            );
+        }
+
+        if (getFileError || updateFileError) {
+            return (
+                <p className='text-red-800'>{getFileError?.shape?.frontEndMessage || updateFileError?.shape?.frontEndMessage}</p>
+            );
+        }
+
+        return null;
+    };
+
+    if (!editor || editor.isDestroyed || !editor.view.dom) return null;
+
+    return (
+        <div className='flex flex-col items-center justify-start flex-1'>
+            <div className='w-[80%] bg-primary-light flex-1 mt-10 flex flex-col items-start justify-start rounded-md p-4 gap-2'>
+                <div className='flex items-center justify-between w-full'>
+                    <h1 className='text-secondary-grey'>
+                        {fileName}
+                    </h1>
+
+                    {renderLoaderOrError()}
+                </div>
+
+                <div className='w-full h-2 mb-4 border-b border-line' />
+
+                <EditorContent
+                    editor={editor}
+                    className='w-full rounded-md text-secondary-grey'
+                />
+            </div>
+        </div>
+    );
+};
+
+export default FileEditor;

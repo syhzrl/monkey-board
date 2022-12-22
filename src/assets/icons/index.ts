@@ -23,6 +23,11 @@ import Edit from './edit.svg';
 import Plus from './plus.svg';
 import Excalidraw from './excalidraw.svg';
 import Pencil from './pencil.svg';
+import Bold from './bold.svg';
+import Italics from './italics.svg';
+import Underline from './underline.svg';
+import Code from './code.svg';
+import TypeStrike from './type-strike.svg';
 
 export {
     LinkedIn,
@@ -50,4 +55,9 @@ export {
     Delete,
     Edit,
     Plus,
+    Bold,
+    Italics,
+    Underline,
+    Code,
+    TypeStrike,
 };

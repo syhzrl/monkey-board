@@ -58,7 +58,7 @@ export const projectRouter = router({
             id: z.string(),
         }))
         .query(async ({ input, ctx }) => {
-            const res = await ctx.prisma.projectDetails.findFirst({
+            const res = await ctx.prisma.projectDetails.findUnique({
                 where: {
                     projectId: input.id,
                 },
